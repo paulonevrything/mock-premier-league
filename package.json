@@ -1,0 +1,39 @@
+{
+  "name": "mock-premier-league",
+  "version": "1.0.0",
+  "description": "An API to mock Premier League Fixtures",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "node src/test",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulonevrything/mock-premier-league.git"
+  },
+  "keywords": [
+    "premier",
+    "league",
+    "api"
+  ],
+  "author": "Paul Olabisi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/paulonevrything/mock-premier-league/issues"
+  },
+  "homepage": "https://github.com/paulonevrything/mock-premier-league#readme",
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^3.21.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.2",
+    "node-cli-colors": "^1.2.0",
+    "nodemon": "^1.19.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
