@@ -6,6 +6,7 @@ const userController = require('../controllers/userController');
 router.post('/signup', userController.signUp);
 router.post('/signin', userController.signIn);
 router.get('/get-teams', isLoggedIn, userController.getTeams);
+router.get('/get-team/:teamCode', isLoggedIn, userController.getTeam);
 router.get('/get-completed-fixtures', isLoggedIn, userController.getCompletedFixtures);
 router.get('/get-pending-fixtures', isLoggedIn, userController.getPendingFixtures);
 

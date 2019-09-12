@@ -11,12 +11,15 @@ module.exports = {
         generalController.signIn(User, req, res, next);
     },
     getTeams: function(req, res, next) {
-        
+        teamsController.getTeams(req, res, next);
+    },
+    getTeam: function(req, res, next) {
+        teamsController.getTeam(req, res, next);
     },
     getCompletedFixtures: function(req, res, next){
-
+        fixturesController.getCompletedFixtures(req, res, next);
     },
     getPendingFixtures: function(req, res, next){
-
+        fixturesController.getPendingFixtures(req, res, next);
     }
 }

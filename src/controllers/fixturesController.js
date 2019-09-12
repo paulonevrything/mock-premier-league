@@ -61,11 +61,30 @@ module.exports = {
                 });
         }
     },
-    getTeam: function (req, res, next) {
+    getCompletedFixtures: function (req, res, next) {
         if (req.params) {
-            let teamCode = req.params.teamCode;
-            Team.findOne({
-                teamCode: teamCode
+            Fixtures.find({
+                status: "completed"
+            })
+                .then(team => {
+                    res.status(201).json({
+                        message: team,
+                        success: true
+                    });
+                })
+                .catch(err => {
+                    utils.writeToFile(err);
+                    res.status(500).json({
+                        message: 'An error has occurred',
+                        success: false
+                    });
+                });
+        }
+    },
+    getPendingFixtures: function (req, res, next) {
+        if (req.params) {
+            Fixtures.find({
+                status: "pending"
             })
                 .then(team => {
                     res.status(201).json({
