@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const Team = require('../models/Team');
 
 module.exports = {
     generateToken: function (tokenLength) {

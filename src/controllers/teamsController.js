@@ -17,7 +17,7 @@ module.exports = {
                 teamCode: req.body.teamCode
             });
             if (teamExist) {
-                return res.status(409).json({ message: 'Team is already added', success: false });
+                return res.status(409).json({ message: 'Team already exists', success: false });
             }
             let team = Team(req.body);
             team.save()

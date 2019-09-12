@@ -12,5 +12,12 @@ module.exports = {
             req.userId = decodedToken.userId;
             return next();    
         })
+    },
+    validateUserRole: function(req, res, next){
+        if(req.body.userRole != 'admin'){
+            (() => res.status(401).send({ success: false, message: 'User is not authorized to access this endpoint' }))();
+            return false;
+        }
+        return next();
     }
 }

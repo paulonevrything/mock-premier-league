@@ -1,5 +1,5 @@
 const { Schema, model } = require('../config/database');
-const { ObjectId } = Schema;
+const { Types } = Schema;
 
 const teamSchema = new Schema({
     teamName: {
@@ -8,10 +8,12 @@ const teamSchema = new Schema({
     },
     teamCode: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     matchPlayed: Number,
-    points: Number
+    points: Number,
+    fixtures: [{}]
 },
     { timestamps: true });
 
