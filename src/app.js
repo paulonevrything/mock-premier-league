@@ -8,7 +8,9 @@ const swaggerRoutes = require('./routes/swagger');
 const userRoute = require('./routes/user');
 const adminRoute = require('./routes/admin');
 const util = require('./utils');
-
+const client = require('./config/index').redisClient;
+const session = require('express-session');
+const redisStore = require('connect-redis')(session);
 
 const app = express();
 
@@ -16,6 +18,12 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.json());
+
+app.use(session({
+    secret: 'baller',
+    store: new redisStore({ client }),
+    resave: false
+}));
 
 app.use((req, res, next) => {
     console.log(`${new Date().toDateString()} => ${req.originalUrl}`, req.body);

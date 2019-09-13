@@ -1,5 +1,6 @@
 const Team = require('../models/Team');
 const utils = require('../utils');
+const client = require('../config/index').redisClient;
 
 
 module.exports = {
@@ -45,41 +46,79 @@ module.exports = {
     },
     getTeams: function (req, res, next) {
         if (req.params) {
-            Team.find()
-                .then(team => {
+            // check redis for cached result
+            client.get(req.originalUrl, function (err, teams) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (teams) {
                     res.status(201).json({
-                        message: team,
+                        message: JSON.parse(teams),
                         success: true
                     });
-                })
-                .catch(err => {
-                    utils.writeToFile(err);
-                    res.status(500).json({
-                        message: 'An error has occurred',
-                        success: false
-                    });
-                });
+                }
+                else {
+                    Team.find()
+                        .then(team => {
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(team), function (err) {
+                                utils.writeToFile(err);
+                            });
+                            res.status(201).json({
+                                message: team,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
         }
     },
     getTeam: function (req, res, next) {
         if (req.params) {
+
             let teamCode = req.params.teamCode;
-            Team.findOne({
-                teamCode: teamCode
-            })
-                .then(team => {
+
+            // check redis for cached result
+            client.get(req.originalUrl, function (err, team) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (team) {
                     res.status(201).json({
-                        message: team,
+                        message: JSON.parse(team),
                         success: true
                     });
-                })
-                .catch(err => {
-                    utils.writeToFile(err);
-                    res.status(500).json({
-                        message: 'An error has occurred',
-                        success: false
-                    });
-                });
+                }
+                else {
+                    Team.findOne({
+                        teamCode: teamCode
+                    })
+                        .then(team => {
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(team), function (err) {
+                                utils.writeToFile(err);
+                            });
+                            res.status(201).json({
+                                message: team,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
         }
     },
     editTeam: function (req, res, next) {
@@ -92,8 +131,8 @@ module.exports = {
         Team.findOneAndUpdate({
             teamCode: req.query.teamCode
         }, req.body, {
-                new: true
-            })
+            new: true
+        })
             .then(team => {
                 if (!team) {
                     res.status(201).json({

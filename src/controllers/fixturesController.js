@@ -1,5 +1,6 @@
 const Fixtures = require('../models/Fixtures');
 const utils = require('../utils');
+const client = require('../config/index').redisClient;
 
 
 module.exports = {
@@ -45,60 +46,121 @@ module.exports = {
     },
     getFixtures: function (req, res, next) {
         if (req.params) {
-            Fixtures.find()
-                .then(fixtures => {
+            // check redis for cache
+            client.get(req.originalUrl, function (err, fixtures) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (fixtures) {
                     res.status(201).json({
-                        message: fixtures,
+                        message: JSON.parse(fixtures),
                         success: true
                     });
-                })
-                .catch(err => {
-                    utils.writeToFile(err);
-                    res.status(500).json({
-                        message: 'An error has occurred',
-                        success: false
-                    });
-                });
+                }
+                else {
+                    Fixtures.find()
+                        .then(fixtures => {
+
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
+                                utils.writeToFile(err);
+                            });
+
+                            res.status(201).json({
+                                message: fixtures,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
         }
     },
     getCompletedFixtures: function (req, res, next) {
         if (req.params) {
-            Fixtures.find({
-                status: "completed"
-            })
-                .then(team => {
+            // check redis for cache
+            client.get(req.originalUrl, function (err, fixtures) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (fixtures) {
                     res.status(201).json({
-                        message: team,
+                        message: JSON.parse(fixtures),
                         success: true
                     });
-                })
-                .catch(err => {
-                    utils.writeToFile(err);
-                    res.status(500).json({
-                        message: 'An error has occurred',
-                        success: false
-                    });
-                });
+                }
+                else {
+                    Fixtures.find({
+                        status: "completed"
+                    })
+                        .then(fixtures => {
+
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
+                                utils.writeToFile(err);
+                            });
+
+                            res.status(201).json({
+                                message: fixtures,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
         }
     },
     getPendingFixtures: function (req, res, next) {
         if (req.params) {
-            Fixtures.find({
-                status: "pending"
-            })
-                .then(team => {
+
+            // check redis for cache
+            client.get(req.originalUrl, function (err, fixtures) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (fixtures) {
                     res.status(201).json({
-                        message: team,
+                        message: JSON.parse(fixtures),
                         success: true
                     });
-                })
-                .catch(err => {
-                    utils.writeToFile(err);
-                    res.status(500).json({
-                        message: 'An error has occurred',
-                        success: false
-                    });
-                });
+                }
+                else {
+                    Fixtures.find({
+                        status: "pending"
+                    })
+                        .then(fixtures => {
+
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
+                                utils.writeToFile(err);
+                            });
+
+                            res.status(201).json({
+                                message: fixtures,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
         }
     },
     editFixtures: function (req, res, next) {
@@ -111,8 +173,8 @@ module.exports = {
         Fixtures.findOneAndUpdate({
             uniqueURL: req.query.uniqueURL
         }, req.body, {
-                new: true
-            })
+            new: true
+        })
             .then(fixtures => {
                 if (!fixtures) {
                     res.status(201).json({
