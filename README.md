@@ -7,6 +7,6 @@
 `$ npm run dev`
 
 ## Swagger documentation
-`http://{host}:4000/api-docs/`
+`https://fixtureta.herokuapp.com/api-docs/`
 
 ## Run API Tests
