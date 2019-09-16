@@ -36,14 +36,10 @@ const fixturesSchema = new Schema({
     { timestamps: true });
 
 
-fixturesSchema.index({
-    homeTeam: 'text',
-    awayTeam: 'text',
-    matchDate: 'text',
-    fixturesID: 'text',
-    status: 'text',
-    uniqueURL: 'text'
-})
+if (!fixturesSchema.indexes()) {
+    fixturesSchema.index({ '$**': 'text' });
+    console.log(fixturesSchema.indexes());
+}
 
 const Fixtures = model('Fixtures', fixturesSchema);
 

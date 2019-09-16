@@ -5,13 +5,13 @@ const teamSchema = new Schema({
     teamName: {
         type: String,
         required: true,
-        text: true
+        //text: true
     },
     teamCode: {
         type: String,
         required: true,
         unique: true,
-        text: true
+       // text: true
     },
     matchPlayed: Number,
     points: Number,
@@ -19,8 +19,12 @@ const teamSchema = new Schema({
 },
     { timestamps: true });
 
-    teamSchema.index({ teamName: 'text', teamCode: 'text'})
-
+teamSchema.index({ teamName: 'text', teamCode: 'text' })
+console.log(teamSchema.indexes());
+if (!teamSchema.indexes()) {
+    teamSchema.index({ '$**': 'text' });
+    console.log(teamSchema.indexes());
+}
 const Team = model('Team', teamSchema);
 
 module.exports = Team;

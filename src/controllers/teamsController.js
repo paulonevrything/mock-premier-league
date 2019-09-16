@@ -182,7 +182,7 @@ module.exports = {
                 });
         }
     },
-    searchTeam: function (req, res, next) {
+    searchTeam: async function (req, res, next) {
         if (!req.query.search) {
             return res.status(400).send({
                 message: 'search value is missing',
@@ -191,7 +191,8 @@ module.exports = {
         }
 
         let searchParams = req.query.search;
-        Team.find({
+        console.log('search: ', searchParams);
+        await Team.find({
             $text: { $search : searchParams } //{ $search : searchParams }  status: new RegExp(searchParams, 'i')
         })
         .then(fixtures => {
@@ -201,6 +202,7 @@ module.exports = {
                     success: true
                 });
             }
+            console.log('fixtures: ', fixtures)
             res.status(201).json({
                 searchResults: fixtures,
                 message: 'search completed successfully',
