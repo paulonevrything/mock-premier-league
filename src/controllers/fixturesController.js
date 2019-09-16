@@ -12,15 +12,16 @@ module.exports = {
             });
         }
 
-        let fieldIsValid = utils.validateReqFields(req, res, ['homeTeam', 'awayTeam', 'matchDate', 'uniqueURL']);
+        let fieldIsValid = utils.validateReqFields(req, res, ['homeTeam', 'awayTeam', 'matchDate', 'fixturesID']);
         if (fieldIsValid) {
             let fixturesExist = await Fixtures.findOne({
-                uniqueURL: req.body.uniqueURL
+                uniqueURL: req.body.fixturesID
             });
             if (fixturesExist) {
                 return res.status(409).json({ message: 'Fixtures already exists', success: false });
             }
             let fixtures = Fixtures(req.body);
+            fixtures.uniqueURL = `https://fixtureta.herokuapp.com/api/fixtures/uniqueUrl/${req.body.fixturesID}`;
             fixtures.save()
                 .then((result) => {
                     if (!result || result.length === 0) {
@@ -61,6 +62,46 @@ module.exports = {
                     Fixtures.find()
                         .then(fixtures => {
 
+                            // set redis
+                            client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
+                                utils.writeToFile(err);
+                            });
+
+                            res.status(201).json({
+                                message: fixtures,
+                                success: true
+                            });
+                        })
+                        .catch(err => {
+                            utils.writeToFile(err);
+                            res.status(500).json({
+                                message: 'An error has occurred',
+                                success: false
+                            });
+                        });
+                }
+            });
+        }
+    },
+    getOneFixture: function (req, res, next) {
+        if (req.params) {
+            let fixturesID = req.params.fixturesID;
+            // check redis for cache
+            client.get(req.originalUrl, function (err, fixtures) {
+                if (err) {
+                    utils.writeToFile(err);
+                }
+                if (fixtures) {
+                    res.status(201).json({
+                        message: JSON.parse(fixtures),
+                        success: true
+                    });
+                }
+                else {
+                    Fixtures.find({
+                        fixturesID: fixturesID
+                    })
+                        .then(fixtures => {
                             // set redis
                             client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
                                 utils.writeToFile(err);
@@ -124,7 +165,6 @@ module.exports = {
     },
     getPendingFixtures: function (req, res, next) {
         if (req.params) {
-
             // check redis for cache
             client.get(req.originalUrl, function (err, fixtures) {
                 if (err) {
@@ -141,7 +181,6 @@ module.exports = {
                         status: "pending"
                     })
                         .then(fixtures => {
-
                             // set redis
                             client.set(req.originalUrl, JSON.stringify(fixtures), function (err) {
                                 utils.writeToFile(err);
@@ -198,9 +237,9 @@ module.exports = {
     },
     deleteFixtures: function (req, res, next) {
         if (req.params) {
-            let uniqueURL = req.params.uniqueURL;
+            let fixturesID = req.params.fixturesID;
             Fixtures.findOneAndDelete({
-                uniqueURL: uniqueURL
+                fixturesID: fixturesID
             })
                 .then(fixtures => {
                     if (!fixtures) {
@@ -223,5 +262,39 @@ module.exports = {
                     });
                 });
         }
+    },
+    searchFixtures: function (req, res, next) {
+        if (!req.query.search) {
+            return res.status(400).send({
+                message: 'search value is missing',
+                success: false
+            });
+        }
+
+        let searchParams = req.query.search;
+        Fixtures.find({
+            $text: { $search : searchParams } //{ $search : searchParams }  status: new RegExp(searchParams, 'i')
+        })
+        .then(fixtures => {
+            if (!fixtures) {
+                res.status(201).json({
+                    message: 'Fixtures not found',
+                    success: true
+                });
+            }
+            res.status(201).json({
+                searchResults: fixtures,
+                message: 'search completed successfully',
+                success: true
+            });
+        })
+        .catch(err => {
+            utils.writeToFile(err);
+            res.status(500).json({
+                message: 'An error has occurred',
+                success: false
+            });
+        });
+
     }
 }

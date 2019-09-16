@@ -10,3 +10,4 @@
 `https://fixtureta.herokuapp.com/api-docs/`
 
 ## Run API Tests
+`$ npm test`

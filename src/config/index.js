@@ -7,8 +7,6 @@ const database = 'heroku_thd7xmws';
 const user = 'heroku_thd7xmws';
 const password = 'pj0j438nasef29lvt4m38t6ejk';
 
-// mongoose.connect(`mongodb://${user}:${password}@${server}/${database}`);
-
 module.exports = {
     api: {
         port: process.env.PORT || 4000

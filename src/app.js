@@ -7,6 +7,7 @@ const mongoose = require('./config/database');
 const swaggerRoutes = require('./routes/swagger');
 const userRoute = require('./routes/user');
 const adminRoute = require('./routes/admin');
+const publicRoute = require('./routes/public');
 const util = require('./utils');
 const client = require('./config/index').redisClient;
 const session = require('express-session');
@@ -30,6 +31,8 @@ app.use((req, res, next) => {
     next();
 });
 
+client.flushall();
+
 // Home route
 app.get('/', (req, res) => {
     res.status(200).send({ message: 'Premier League API', success: true });
@@ -43,6 +46,9 @@ app.use('/api/user', userRoute);
 
 // Admin route
 app.use('/api/admin', adminRoute);
+
+// Public route
+app.use('/api/fixtures', publicRoute);
 
 
 app.use((error, req, res, next) => {
@@ -60,17 +66,5 @@ mongoose.establishConnection(() => {
         console.log(`Premier League API listening on port ${config.api.port}`);
     });
 });
-
-
-
-// app.init = function(callback){
-//     console.log('init');
-//     mongoose.establishConnection(() => {
-//         app.listen(config.api.port, () => {
-//             console.log(`Premier League API listening on port ${config.api.port}`);
-//             callback();
-//         });
-//     });
-// }
 
 module.exports = app

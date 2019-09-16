@@ -4,25 +4,46 @@ const { ObjectId } = Schema;
 const fixturesSchema = new Schema({
     homeTeam: {
         type: String,
-        required: true
+        required: true,
+        text: true
     },
     awayTeam: {
         type: String,
-        required: true
+        required: true,
+        text: true
     },
     matchDate: {
         type: Date,
-        required: true
+        required: true,
+        text: true
     },
     scoreLine: [0, 0],
     uniqueURL: {
         type: String,
-        required: true,
-        unique: true
+        text: true
     },
-    status: String
+    fixturesID: {
+        type: String,
+        required: true,
+        unique: true,
+        text: true
+    },
+    status: {
+        type: String,
+        text: true
+    }
 },
     { timestamps: true });
+
+
+fixturesSchema.index({
+    homeTeam: 'text',
+    awayTeam: 'text',
+    matchDate: 'text',
+    fixturesID: 'text',
+    status: 'text',
+    uniqueURL: 'text'
+})
 
 const Fixtures = model('Fixtures', fixturesSchema);
 

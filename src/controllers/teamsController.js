@@ -181,5 +181,39 @@ module.exports = {
                     });
                 });
         }
+    },
+    searchTeam: function (req, res, next) {
+        if (!req.query.search) {
+            return res.status(400).send({
+                message: 'search value is missing',
+                success: false
+            });
+        }
+
+        let searchParams = req.query.search;
+        Team.find({
+            $text: { $search : searchParams } //{ $search : searchParams }  status: new RegExp(searchParams, 'i')
+        })
+        .then(fixtures => {
+            if (!fixtures) {
+                res.status(201).json({
+                    message: 'Fixtures not found',
+                    success: true
+                });
+            }
+            res.status(201).json({
+                searchResults: fixtures,
+                message: 'search completed successfully',
+                success: true
+            });
+        })
+        .catch(err => {
+            utils.writeToFile(err);
+            res.status(500).json({
+                message: 'An error has occurred',
+                success: false
+            });
+        });
+
     }
 }
